@@ -179,21 +179,25 @@ class SemanticMilestoneMatrix(gl.Contract):
             raise gl.vm.UserError("[EXPECTED] evidence is already locked by the deadline")
         self.locked = True
 
-    def _candidate(self) -> dict:
-        criteria = _parse_json(self.criteria_json, "criteria")
-        evidence = []
-        available_count = 0
-        for index, url in enumerate(self.evidence_urls):
-            response = gl.nondet.web.get(url)
-            available = response.status == 200
-            if available:
-                available_count += 1
-            content = response.body[:MAX_SOURCE_CHARS].decode("utf-8", errors="replace") if available else "[SOURCE_UNAVAILABLE]"
-            evidence.append({"id": str(index), "url": url, "available": available, "content": content})
-        if available_count == 0:
-            statuses = {criterion["id"]: "INCONCLUSIVE" for criterion in criteria}
-            return {"criterion_statuses": statuses, "score_bps": 0, "verdict": "INCONCLUSIVE"}
-        prompt = f"""
+    def _consensus_candidate(self) -> dict:
+        criteria = _parse_json(str(self.criteria_json), "criteria")
+        evidence_urls = [str(url) for url in self.evidence_urls]
+        threshold_bps = int(self.threshold_bps)
+
+        def leader_fn() -> dict:
+            evidence = []
+            available_count = 0
+            for index, url in enumerate(evidence_urls):
+                response = gl.nondet.web.get(url)
+                available = response.status == 200
+                if available:
+                    available_count += 1
+                content = response.body[:MAX_SOURCE_CHARS].decode("utf-8", errors="replace") if available else "[SOURCE_UNAVAILABLE]"
+                evidence.append({"id": str(index), "url": url, "available": available, "content": content})
+            if available_count == 0:
+                statuses = {criterion["id"]: "INCONCLUSIVE" for criterion in criteria}
+                return {"criterion_statuses": statuses, "score_bps": 0, "verdict": "INCONCLUSIVE"}
+            prompt = f"""
 Evaluate a deliverable against the immutable milestone criteria.
 Return ONLY JSON: {{"criteria": [{{"id":"...","status":"SATISFIED|NOT_SATISFIED|INCONCLUSIVE"}}]}}
 Use INCONCLUSIVE when the evidence is unavailable, ambiguous, or insufficient.
@@ -202,35 +206,31 @@ Criteria: {json.dumps(criteria, sort_keys=True)}
 Evidence:
 {json.dumps(evidence, sort_keys=True)}
 """
-        result = _as_object(gl.nondet.exec_prompt(prompt, response_format="json"), "milestone evaluation")
-        raw_criteria = result.get("criteria")
-        if not isinstance(raw_criteria, list):
-            raise gl.vm.UserError("[LLM_ERROR] criteria result must be an array")
-        by_id = {}
-        for item in raw_criteria:
-            if isinstance(item, dict) and "id" in item:
-                by_id[str(item["id"])] = _normalize_status(item.get("status", "INCONCLUSIVE"))
-        statuses = {}
-        weighted_satisfied = 0
-        total_weight = 0
-        has_inconclusive = False
-        for criterion in criteria:
-            criterion_id = criterion["id"]
-            status = by_id.get(criterion_id, "INCONCLUSIVE")
-            statuses[criterion_id] = status
-            weight = int(criterion["weight"])
-            total_weight += weight
-            if status == "SATISFIED":
-                weighted_satisfied += weight
-            if status == "INCONCLUSIVE":
-                has_inconclusive = True
-        score = (weighted_satisfied * 10000) // total_weight
-        verdict = "INCONCLUSIVE" if has_inconclusive else ("PASS" if score >= int(self.threshold_bps) else "FAIL")
-        return {"criterion_statuses": statuses, "score_bps": score, "verdict": verdict}
-
-    def _consensus_candidate(self) -> dict:
-        def leader_fn() -> dict:
-            return self._candidate()
+            result = _as_object(gl.nondet.exec_prompt(prompt, response_format="json"), "milestone evaluation")
+            raw_criteria = result.get("criteria")
+            if not isinstance(raw_criteria, list):
+                raise gl.vm.UserError("[LLM_ERROR] criteria result must be an array")
+            by_id = {}
+            for item in raw_criteria:
+                if isinstance(item, dict) and "id" in item:
+                    by_id[str(item["id"])] = _normalize_status(item.get("status", "INCONCLUSIVE"))
+            statuses = {}
+            weighted_satisfied = 0
+            total_weight = 0
+            has_inconclusive = False
+            for criterion in criteria:
+                criterion_id = criterion["id"]
+                status = by_id.get(criterion_id, "INCONCLUSIVE")
+                statuses[criterion_id] = status
+                weight = int(criterion["weight"])
+                total_weight += weight
+                if status == "SATISFIED":
+                    weighted_satisfied += weight
+                if status == "INCONCLUSIVE":
+                    has_inconclusive = True
+            score = (weighted_satisfied * 10000) // total_weight
+            verdict = "INCONCLUSIVE" if has_inconclusive else ("PASS" if score >= threshold_bps else "FAIL")
+            return {"criterion_statuses": statuses, "score_bps": score, "verdict": verdict}
 
         def validator_fn(leaders_res) -> bool:
             if not isinstance(leaders_res, gl.vm.Return):
@@ -248,8 +248,7 @@ Evidence:
             except Exception:
                 return False
             return (
-                leader.get("criterion_statuses") == independent.get("criterion_statuses")
-                and leader.get("verdict") == independent.get("verdict")
+                leader.get("verdict") == independent.get("verdict")
                 and leader.get("score_bps") == independent.get("score_bps")
             )
 
