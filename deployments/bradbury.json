@@ -17,7 +17,7 @@
   "batch_completed_utc": "2026-08-12T17:41:04.0808420Z",
   "finalized_verified": true,
   "consensus_test_transaction": "0xba51356278504d1cef3645f36592c2ff124ebcf2d2583a4d741746db2f2d03b0",
-  "consensus_test_status": "ACCEPTED",
+  "consensus_test_status": "FINALIZED",
   "consensus_test_execution": "FINISHED_WITH_RETURN",
   "consensus_result": "MAJORITY_AGREE",
   "validator_votes": {"finished_with_return": 3, "timeout": 2},
@@ -26,6 +26,7 @@
   "consensus_test_verdict": "PASS",
   "consensus_test_score_bps": 10000,
   "criterion_statuses": {"chain-id": "SATISFIED", "production-like": "SATISFIED"},
-  "consensus_test_finalized_verified": false,
-  "note": "The deployment is finalized. The test reached majority agreement after a leader rotation; its appeal window remains open."
+  "consensus_test_finalized_verified": true,
+  "finality_verified_utc": "2026-08-12T19:04:34.8471993Z",
+  "note": "Deployment and consensus test are finalized. The test reached majority agreement after a leader rotation."
 }
