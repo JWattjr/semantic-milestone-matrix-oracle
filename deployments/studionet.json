@@ -1,0 +1,14 @@
+{
+  "contract": "SemanticMilestoneMatrix",
+  "network": "studionet",
+  "chain_id": 61999,
+  "deployer": "0xdB433ff614bDD1ecE21Aa97221C3E0a7ecf79c92",
+  "contract_address": "0x39a2830dCdf1b3d06d4854cb923d0980329B1f84",
+  "deployment_transaction": "0x6c0f74c1d82e410b28f6ba0da456f229ddb8fc53f1da6ebec00d4cdb2903c95b",
+  "explorer_url": "https://explorer-studio.genlayer.com/address/0x39a2830dCdf1b3d06d4854cb923d0980329B1f84",
+  "runner": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6",
+  "execution_verified": true,
+  "schema_verified": true,
+  "state_verified": true,
+  "finalized_verified": true
+}
