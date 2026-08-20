@@ -28,8 +28,9 @@ statuses remain available for audit.
 ## Live evidence
 
 - [StudioNet contract](https://explorer-studio.genlayer.com/address/0xfF506e1728F302C582360E57fbA0aCbf8769EF28)
-- [Bradbury contract](https://explorer-bradbury.genlayer.com/address/0xB3886D3F95577822f361d6DBB2D706cCc6E70B49)
-- Exact receipts and current finality are recorded in `deployments/`.
+- The finalized deployment, live resolution, state, source-hash match, and
+  receipt identifiers are recorded in `deployments/studionet.json` and
+  `docs/STUDIONET_VERIFICATION.md`.
 
 ## Verify
 

@@ -2,7 +2,7 @@
 
 **Contribution type:** Builder → Intelligent Contracts  
 **Title:** Semantic Milestone Matrix Oracle  
-**Contribution date:** August 12, 2026
+**Contribution date:** August 20, 2026
 
 ## Notes / Description
 
@@ -17,7 +17,7 @@ integer basis-point score and PASS/FAIL/INCONCLUSIVE verdict; per-criterion
 statuses remain audit metadata. All-source outages fail closed without invoking
 an LLM, private-network evidence is rejected, and terminal writes are
 idempotent. Includes pinned GenVM source, consensus tests, security audit, test
-matrix, and StudioNet/Bradbury deployment records. It is a decision primitive
+matrix, and finalized StudioNet verification records. It is a decision primitive
 and deliberately contains no payout code.
 
 ## Evidence to add
@@ -28,5 +28,5 @@ and deliberately contains no payout code.
 4. GitHub File — https://github.com/JWattjr/semantic-milestone-matrix-oracle/blob/main/docs/SECURITY_AUDIT.md
 5. GitHub File — https://github.com/JWattjr/semantic-milestone-matrix-oracle/blob/main/docs/TEST_MATRIX.md
 6. GitHub File — https://github.com/JWattjr/semantic-milestone-matrix-oracle/blob/main/deployments/studionet.json
-7. GitHub File — https://github.com/JWattjr/semantic-milestone-matrix-oracle/blob/main/deployments/bradbury.json
-8. GenLayer Explorer Contract — https://explorer-bradbury.genlayer.com/address/0xB3886D3F95577822f361d6DBB2D706cCc6E70B49
+7. GitHub File — https://github.com/JWattjr/semantic-milestone-matrix-oracle/blob/main/docs/STUDIONET_VERIFICATION.md
+8. GenLayer Explorer Contract — https://explorer-studio.genlayer.com/address/0xfF506e1728F302C582360E57fbA0aCbf8769EF28

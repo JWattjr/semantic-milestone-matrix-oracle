@@ -13,10 +13,10 @@
 | Boundary semantics | K-of-N, threshold, trigger routing, rulebook status | Same result under consensus |
 | Nondeterministic storage isolation | AST asserts no `self` reference in leader/validator closures | Live receipt must contain no storage-capture warning |
 
-The direct tests are intentionally small and deterministic. StudioNet and
-Bradbury deployment manifests record the live contract address, deployment
-transaction, schema/state verification, and consensus transaction where
-applicable. A live `UNRESOLVED` or `INCONCLUSIVE` result is a passing safety
+The direct tests are intentionally small and deterministic. The StudioNet
+deployment manifest records the live contract address, deployment transaction,
+schema/state verification, source hash, and consensus transaction. A live
+`UNRESOLVED` or `INCONCLUSIVE` result is a passing safety
 test when the public evidence does not support a terminal judgment.
 
 ## Recorded results — 2026-08-12
@@ -26,5 +26,13 @@ test when the public evidence does not support a terminal judgment.
 - GenVM lint and SDK schema validation: passed.
 - StudioNet: finalized deployment plus finalized `PASS / 10000 bps` test;
   leader execution `SUCCESS`, 3 agree / 2 idle, no storage-capture warning.
-- Bradbury: deployment submitted in the six-contract batch and accepted; see
-  `deployments/bradbury.json` for the current finality status.
+
+## Re-verification — 2026-08-20
+
+- Standalone suite: 3 passed.
+- GenVM AST safety lint: passed.
+- StudioNet deployed source hash: exact repository match.
+- StudioNet schema and current state reads: succeeded.
+- Deployment and live resolution receipts: `FINALIZED` with successful execution.
+- SDK semantic lint was blocked by a missing pinned-runner tar in the current
+  linter artifact, not by a contract diagnostic.

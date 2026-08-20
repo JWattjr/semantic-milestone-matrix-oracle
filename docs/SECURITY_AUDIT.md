@@ -1,6 +1,7 @@
 # Security and consensus audit: SemanticMilestoneMatrix
 
 Audit date: 2026-08-12
+StudioNet re-verification: 2026-08-20
 Scope: `contracts/SemanticMilestoneMatrix.py`
 Method: manual review, GenVM AST lint, SDK schema validation, direct-mode
 tests, malicious-leader checks, and hosted-network receipt inspection.
@@ -39,7 +40,11 @@ logic.
 - StudioNet deployment and resolution finalized with `SUCCESS`, 3 agree / 2
   idle, and no storage warning.
 - Live result: both criteria `SATISFIED`, score 10,000 bps, verdict `PASS`.
-- Bradbury status is tracked independently in its deployment manifest.
+- Deployed StudioNet source SHA-256 exactly matches the repository contract:
+  `1d29ff18e09910b4d04ae4d4659f60f9bef4597c82da514defbf1292696be6f8`.
+- Re-verification AST lint passed. Deeper SDK validation was unavailable because
+  the current linter artifact omits the pinned runner tar; StudioNet source and
+  schema retrieval both succeeded.
 
 This is an engineering assessment, not formal verification or a financial or
 legal guarantee.
