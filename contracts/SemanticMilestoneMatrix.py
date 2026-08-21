@@ -89,6 +89,35 @@ def _normalize_status(value: str) -> str:
     return status
 
 
+def _canonical_candidate(criteria: list, raw_statuses, threshold_bps: int) -> dict:
+    """Bind every criterion status to the score and verdict it determines."""
+    if not isinstance(raw_statuses, dict):
+        raise gl.vm.UserError("[LLM_ERROR] criterion_statuses must be an object")
+
+    expected_ids = [str(criterion["id"]) for criterion in criteria]
+    if set(str(key) for key in raw_statuses.keys()) != set(expected_ids):
+        raise gl.vm.UserError("[LLM_ERROR] criterion_statuses must contain every criterion exactly once")
+
+    statuses = {}
+    weighted_satisfied = 0
+    total_weight = 0
+    has_inconclusive = False
+    for criterion in criteria:
+        criterion_id = str(criterion["id"])
+        status = _normalize_status(raw_statuses[criterion_id])
+        statuses[criterion_id] = status
+        weight = int(criterion["weight"])
+        total_weight += weight
+        if status == "SATISFIED":
+            weighted_satisfied += weight
+        elif status == "INCONCLUSIVE":
+            has_inconclusive = True
+
+    score = (weighted_satisfied * 10000) // total_weight
+    verdict = "INCONCLUSIVE" if has_inconclusive else ("PASS" if score >= threshold_bps else "FAIL")
+    return {"criterion_statuses": statuses, "score_bps": score, "verdict": verdict}
+
+
 class SemanticMilestoneMatrix(gl.Contract):
     """Evaluate a milestone matrix before a deterministic score/payout."""
 
@@ -215,22 +244,10 @@ Evidence:
                 if isinstance(item, dict) and "id" in item:
                     by_id[str(item["id"])] = _normalize_status(item.get("status", "INCONCLUSIVE"))
             statuses = {}
-            weighted_satisfied = 0
-            total_weight = 0
-            has_inconclusive = False
             for criterion in criteria:
                 criterion_id = criterion["id"]
-                status = by_id.get(criterion_id, "INCONCLUSIVE")
-                statuses[criterion_id] = status
-                weight = int(criterion["weight"])
-                total_weight += weight
-                if status == "SATISFIED":
-                    weighted_satisfied += weight
-                if status == "INCONCLUSIVE":
-                    has_inconclusive = True
-            score = (weighted_satisfied * 10000) // total_weight
-            verdict = "INCONCLUSIVE" if has_inconclusive else ("PASS" if score >= threshold_bps else "FAIL")
-            return {"criterion_statuses": statuses, "score_bps": score, "verdict": verdict}
+                statuses[criterion_id] = by_id.get(criterion_id, "INCONCLUSIVE")
+            return _canonical_candidate(criteria, statuses, threshold_bps)
 
         def validator_fn(leaders_res) -> bool:
             if not isinstance(leaders_res, gl.vm.Return):
@@ -244,12 +261,27 @@ Evidence:
             if not isinstance(leader, dict):
                 return False
             try:
+                canonical_leader = _canonical_candidate(
+                    criteria,
+                    leader.get("criterion_statuses"),
+                    threshold_bps,
+                )
+                if leader.get("score_bps") != canonical_leader["score_bps"]:
+                    return False
+                if leader.get("verdict") != canonical_leader["verdict"]:
+                    return False
                 independent = leader_fn()
+                canonical_independent = _canonical_candidate(
+                    criteria,
+                    independent.get("criterion_statuses"),
+                    threshold_bps,
+                )
             except Exception:
                 return False
             return (
-                leader.get("verdict") == independent.get("verdict")
-                and leader.get("score_bps") == independent.get("score_bps")
+                canonical_leader["criterion_statuses"] == canonical_independent["criterion_statuses"]
+                and canonical_leader["score_bps"] == canonical_independent["score_bps"]
+                and canonical_leader["verdict"] == canonical_independent["verdict"]
             )
 
         return gl.vm.run_nondet_unsafe(leader_fn, validator_fn)

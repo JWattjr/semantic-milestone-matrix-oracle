@@ -7,6 +7,8 @@
 | Deadline enforcement | Resolve before deadline reverts | Same on a real network timestamp |
 | Happy-path decision | Mock web/LLM produces canonical result | Five-validator agreement |
 | Malicious leader | Mock leader result differs from independent result | Validator disagreement/rotation |
+| Equal-weight status swap | Conflicting criterion maps with identical score/verdict are rejected | Validators must agree on the complete canonical status map |
+| Status/result consistency | A status map paired with a false score or verdict is rejected | Stored map, score, and verdict derive from one accepted candidate |
 | Missing source | Mock 4xx/5xx or unavailable page | Fail-closed unresolved/unavailable state |
 | Prompt injection | Evidence contains fake instructions | Result still follows frozen schema/policy |
 | Replay/idempotency | Repeat terminal resolve | Repeat finalized transaction is safe |
@@ -36,3 +38,13 @@ test when the public evidence does not support a terminal judgment.
 - Deployment and live resolution receipts: `FINALIZED` with successful execution.
 - SDK semantic lint was blocked by a missing pinned-runner tar in the current
   linter artifact, not by a contract diagnostic.
+
+## Steward remediation — 2026-08-21
+
+- Standalone suite: 5 passed.
+- Added an equal-weight swap regression proving that conflicting per-criterion
+  classifications cannot pass with the same aggregate score and verdict.
+- Added a consistency regression proving that the validator rejects a status
+  map paired with a false score or verdict.
+- GenVM AST safety lint: 3 checks passed. SDK semantic lint remains blocked by
+  the installed linter bundle's missing pinned-runner tar.

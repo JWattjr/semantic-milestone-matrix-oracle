@@ -13,8 +13,9 @@ derives a basis-point score and `PASS`, `FAIL`, or `INCONCLUSIVE` verdict.
 
 Qualitative deliverables cannot be safely reduced to one API response. The
 leader and validators independently evaluate the immutable matrix, then compare
-the consequential score and verdict before on-chain state changes. Per-criterion
-statuses remain available for audit.
+the complete canonical per-criterion status map plus its deterministically
+derived score and verdict before on-chain state changes. A status swap cannot be
+accepted merely because equal weights preserve the aggregate score.
 
 ## Lifecycle and API
 
@@ -27,7 +28,7 @@ statuses remain available for audit.
 
 ## Live evidence
 
-- [StudioNet contract](https://explorer-studio.genlayer.com/address/0xfF506e1728F302C582360E57fbA0aCbf8769EF28)
+- [Corrected StudioNet contract](https://explorer-studio.genlayer.com/address/0x0d4e0AF51b27894fd8d81b7fD98400e04564CCC6)
 - The finalized deployment, live resolution, state, source-hash match, and
   receipt identifiers are recorded in `deployments/studionet.json` and
   `docs/STUDIONET_VERIFICATION.md`.

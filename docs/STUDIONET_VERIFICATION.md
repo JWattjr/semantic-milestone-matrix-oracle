@@ -1,35 +1,43 @@
 # StudioNet verification
 
-Verification date: 2026-08-20  
-Network: StudioNet (chain ID 61999)  
+Verification date: 2026-08-21
+Network: StudioNet (chain ID 61999)
 CLI: 0.39.2
 
-## Contract and transactions
+## Corrected contract and transactions
 
-- Contract: `0xfF506e1728F302C582360E57fbA0aCbf8769EF28`
-- Explorer: https://explorer-studio.genlayer.com/address/0xfF506e1728F302C582360E57fbA0aCbf8769EF28
-- Deployment transaction: `0xf05e4d3848bc9608c796b7ac69dcc1330c3a93b0b4e76310a4a1520a89bbda6b`
-- Live resolution transaction: `0xc24cccf47da9cfe1613ae811de97a936794f5d2494274dcdba11e1b67e0a5655`
+- Contract: `0x0d4e0AF51b27894fd8d81b7fD98400e04564CCC6`
+- Explorer: https://explorer-studio.genlayer.com/address/0x0d4e0AF51b27894fd8d81b7fD98400e04564CCC6
+- Deployment transaction: `0x063e7eab79b1a471bfca662ee293e217b882316082a231106984490dee363db4`
+- Live resolution transaction: `0xe456873aa25ab80f588d5e800c06a20b956d99b41da127c40a76f471e502197f`
 
-Both transactions are `FINALIZED` and executed successfully. The consensus
-result is `MAJORITY_AGREE` with three agree votes; two validators became idle
-after quorum was reached.
+Both transactions are `FINALIZED` and executed successfully. Deployment reached
+`MAJORITY_AGREE` with three agree votes and two validators cancelled after
+quorum. Resolution reached `MAJORITY_AGREE` in two rounds with three agree, one
+disagree, and one validator cancelled after quorum.
 
 ## Source and schema
 
-- Repository source SHA-256: `1d29ff18e09910b4d04ae4d4659f60f9bef4597c82da514defbf1292696be6f8`
-- StudioNet source SHA-256: `1d29ff18e09910b4d04ae4d4659f60f9bef4597c82da514defbf1292696be6f8`
-- Exact source match: yes
+- Repository source SHA-256: `6849513f89e032d99c44609c6eeaf2991f83c9f20413fac12a369446de9ab4a9`
+- Exact deployment source used by StudioNet: yes
+- StudioNet source retrieval: succeeded
 - StudioNet schema retrieval: succeeded
 
-## Current state
+## Live consensus result
 
-- Status: `RESOLVED`
+- Status: `INCONCLUSIVE`
 - Attempts: 1
-- Verdict: `PASS`
-- Score: 10,000 basis points
-- Criterion statuses: `chain-id = SATISFIED`, `production-like = SATISFIED`
+- Verdict: `INCONCLUSIVE`
+- Score: 0 basis points
+- Canonical criterion statuses: `chain-id = INCONCLUSIVE`, `gasless = INCONCLUSIVE`
 
-The standalone repository suite passed 3 tests on 2026-08-20. GenVM AST safety
-lint passed. SDK semantic lint could not run because the current linter artifact
+The selected validators could not retrieve the public documentation source, so
+the contract correctly failed closed. The finalized receipt demonstrates that
+the corrected equivalence function processes and stores one complete canonical
+status map whose score and verdict are internally consistent. The regression
+suite separately proves that an equal-weight status swap with the same score and
+verdict is rejected.
+
+The standalone suite passed 5 tests on 2026-08-21. GenVM AST safety lint passed
+all 3 checks. SDK semantic lint could not run because the installed linter bundle
 omits the contract's pinned runner tar; this is a toolchain packaging limitation.
